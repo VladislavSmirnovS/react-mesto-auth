@@ -1,0 +1,22 @@
+.popup__button-confirm {
+  background-color: #000;
+  color: #fff;
+  padding: 15px 0 14px;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 22px;
+  border: none;
+  border-radius: 2px;
+}
+
+@media screen and (max-width: 650px) {
+  .popup__button-save {
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 17px;
+  }
+}
+
+.popup__button-save:hover {
+  opacity: 0.8;
+}

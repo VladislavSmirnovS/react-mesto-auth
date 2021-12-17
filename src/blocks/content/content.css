@@ -1,0 +1,24 @@
+.content {
+  max-width: 880px;
+  position: relative;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 1024px) {
+  .content {
+    margin: 0 100px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .content {
+    margin: 0 50px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .content {
+    max-width: 282px;
+    margin: 0 19px;
+  }
+}

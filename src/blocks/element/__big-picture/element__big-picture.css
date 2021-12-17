@@ -1,0 +1,10 @@
+.element__big-picture {
+  padding: 0;
+  border: none;
+  width: 282px;
+  height: 282px;
+}
+
+.element__big-picture:hover {
+  opacity: 0.6;
+}
