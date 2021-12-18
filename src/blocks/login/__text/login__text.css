@@ -1,11 +1,5 @@
 .login__text {
-  margin-top: 5px;
+  margin: 15px 0 0;
   font-size: 14px;
   line-height: 17px;
-}
-
-@media screen and (min-width: 1280px){
-  .login__text {
-    margin: 15px 0 0;
-  }
 }
