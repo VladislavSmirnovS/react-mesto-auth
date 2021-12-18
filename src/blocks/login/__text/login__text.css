@@ -1,5 +1,5 @@
 .login__text {
-  margin-top: calc((100vw - 320px) / (1280 - 320) * (15 - 20) + 20px);
+  margin-top: 5px;
   font-size: 14px;
   line-height: 17px;
 }

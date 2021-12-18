@@ -1,5 +1,5 @@
 .login__input {
-  width: calc((100vw - 320px) / (1280 - 320) * (354 - 260) + 260px);
+  width: 20px;
   margin: 0 0 23px;
   outline: none;
   border: none;
