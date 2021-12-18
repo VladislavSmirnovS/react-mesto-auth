@@ -260,25 +260,24 @@ function App() {
           }/>
 
           <Route exact path="/" element={
-              <>
-                <Header title="Выйти" mail={emailName} onClick={onSignOut} route="" />
-                <ProtectedRoute
-                  component={Main}
-                  isLogged={isLoggedIn}
-                  onEditAvatar={handleEditAvatarClick}
-                  onEditProfile={handleEditProfileClick}
-                  onAddPlace={handleAddPlaceClick}
-                  onCardClick={handleCardClick}
-                  cards={cards}
-                  onCardLike={handleCardLike}
-                  onCardDelete={handleCardDelete}
-                />
-                <Footer />
-              </>
-            }/>
-
-            <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/sign-in"}/>} />
-          </Routes>
+            <>
+              <Header title="Выйти" mail={emailName} onClick={onSignOut} route="" />
+              <ProtectedRoute
+                component={Main}
+                isLogged={isLoggedIn}
+                onEditAvatar={handleEditAvatarClick}
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onCardClick={handleCardClick}
+                cards={cards}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+              />
+              <Footer />
+            </>
+          }/>
+          <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/sign-in"}/>} />
+        </Routes>
 
         <EditAvatarPopup
           isOpen={isEditAvatarPopupOpen}
