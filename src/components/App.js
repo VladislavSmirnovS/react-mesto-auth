@@ -1,7 +1,11 @@
 import React from "react";
-
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import ProtectedRoute from "./ProtectedRoute";
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
+import { useEffect, useState } from "react";
+
 import api from "../utils/Api.js";
+import * as auth from "../utils/auth";
 import Header from "./Header.js";
 import Main from "./Main.js";
 import Footer from "./Footer.js";
@@ -10,8 +14,14 @@ import PopupWithForm from "./PopupWithForm.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
+import Login from "./Login";
+import Register from "./Register";
+import InfoTooltip from "./InfoTooltip";
+import resolve from "../images/resolve.svg";
+import reject from "../images/reject.svg";
 
 function App() {
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = React.useState({});
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -26,6 +36,62 @@ function App() {
     element: {},
   });
   const [cards, setCards] = React.useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [emailName, setEmailName] = useState(null);
+  const [popupImage, setPopupImage] = useState("");
+  const [popupTitle, setPopupTitle] = useState("");
+  const [infoTooltip, setInfoTooltip] = useState(false);
+
+  function onRegister(email, password) {
+    auth.registerUser(email, password).then(() => {
+      setPopupImage(resolve);
+      setPopupTitle("Вы успешно зарегистрировались!");
+      navigate("/sign-in");
+    }).catch(() => {
+      setPopupImage(reject);
+      setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
+    }).finally(handleInfoTooltip);
+  }
+
+  function onLogin(email, password) {
+    auth.loginUser(email, password).then((res) => {
+      localStorage.setItem("jwt", res.token);
+      setIsLoggedIn(true);
+      setEmailName(email);
+      navigate("/");
+    }).catch(() => {
+      setPopupImage(reject);
+      setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
+      handleInfoTooltip();
+    });
+  }
+
+  function onSignOut() {
+    setIsLoggedIn(false);
+    setEmailName(null);
+    navigate("/sign-in");
+    localStorage.removeItem("jwt");
+  }
+
+  useEffect(() => {
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      auth.getToken(jwt).then((res) => {
+        if (res) {
+          setIsLoggedIn(true);
+          setEmailName(res.data.email);
+        }
+      }).catch((err) => {
+        console.error(err);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn === true) {
+      navigate("/");
+    }
+  }, [isLoggedIn, navigate]);
 
   React.useEffect(() => {
     api
@@ -55,7 +121,7 @@ function App() {
       isAddPlacePopupOpen ||
       isEditAvatarPopupOpen ||
       isDeletePopupOpen ||
-      selectedCard.isOpen
+      selectedCard.isOpen || infoTooltip
     ) {
       function handleEsc(event) {
         if (event.key === "Escape") {
@@ -72,7 +138,7 @@ function App() {
     isAddPlacePopupOpen,
     isEditAvatarPopupOpen,
     isDeletePopupOpen,
-    selectedCard.isOpen,
+    selectedCard.isOpen,infoTooltip
   ]);
 
   function handleAddPlaceSubmit(cardData) {
@@ -124,6 +190,10 @@ function App() {
       });
   }
 
+  function handleInfoTooltip() {
+    setInfoTooltip(true);
+  }
+
   function handleCardDelete(card) {
     api
       .deleteCard(card._id)
@@ -145,7 +215,6 @@ function App() {
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
-    console.log(cards[0]);
   }
 
   function handleAddPlaceClick() {
@@ -156,9 +225,6 @@ function App() {
     setIsSelectedCard({ isOpen: true, element: card });
   }
 
-  function handleDeleteClick() {
-    setIsDeletePopupOpen(true);
-  }
 
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
@@ -166,6 +232,7 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setIsDeletePopupOpen(false);
     setIsSelectedCard({ isOpen: 0, element: {} });
+    setInfoTooltip(false);
   }
 
   function handlePopupClick(event) {
@@ -177,18 +244,42 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onDeleteIcon={handleDeleteClick}
-          onCardLike={handleCardLike}
-          cards={cards}
-          onCardDelete={handleCardDelete}
-        />
-        <Footer />
+        <Routes>
+          <Route path="/sign-in" element={
+            <>
+              <Header title="Регистрация" route="/sign-up"/>
+              <Login onLogin={onLogin} />
+            </>
+          }/>
+
+          <Route path="/sign-up" element={
+            <>
+              <Header title="Войти" route="/sign-in"/>
+              <Register onRegister={onRegister} />
+            </>
+          }/>
+
+          <Route exact path="/" element={
+              <>
+                <Header title="Выйти" mail={emailName} onClick={onSignOut} route="" />
+                <ProtectedRoute
+                  component={Main}
+                  isLogged={isLoggedIn}
+                  onEditAvatar={handleEditAvatarClick}
+                  onEditProfile={handleEditProfileClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onCardClick={handleCardClick}
+                  cards={cards}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                />
+                <Footer />
+              </>
+            }/>
+
+            <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/sign-in"}/>} />
+          </Routes>
+
         <EditAvatarPopup
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
@@ -220,6 +311,13 @@ function App() {
           card={selectedCard}
           onPopupClick={handlePopupClick}
         />
+        <InfoTooltip 
+            image={popupImage} 
+            title={popupTitle} 
+            isOpen={infoTooltip} 
+            onCloseClick={handlePopupClick}
+            onClose={closeAllPopups} 
+          />
       </div>
     </CurrentUserContext.Provider>
   );
