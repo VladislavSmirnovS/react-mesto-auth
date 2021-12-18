@@ -1,6 +1,6 @@
 .login__title {
-  margin: 5px;
-  font-size: calc((100vw - 320px) / (1280 - 320) * (24 - 20) + 20px);
+  margin: 60px 0 50px 0 ;
+  font-size: 24px;
   font-weight: 900;
   line-height: 22px;
 }
